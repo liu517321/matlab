@@ -1,0 +1,46 @@
+%FIR高通滤波器设计及滤波
+
+Fp=4200;
+Fs=3500;
+fs=22050;
+wp=2*pi*Fp/fs;
+ws=2*pi*Fs/fs;
+As=100;
+Ap=1;
+
+wd=wp-ws;    %计算过渡带宽
+N=ceil(8*pi/wd);    %计算所需阶数
+wn=(wp+ws)/2;   %理想滤波器的截止频率
+[b,a]=fir1(N,wn/pi,'high');
+
+figure(1)
+freqz(b,a,512);
+title('FIR高通滤波器');
+
+x=audioread('E:\matlab\12.wav');
+figure(2)
+subplot(4,1,1)
+f2=filter(b,a,x);
+plot(x);
+title('FIR高通滤波器滤波前的时域波形');
+subplot(4,1,2);
+plot(f2);
+title('FIR高通滤波器滤波后的时域波形');
+
+sound(f2,48000);
+F0=fft(f2,1024);
+f=fs*(0:511)/1024;
+
+y2=fft(x,1024);
+subplot(4,1,3);
+plot(f,abs(y2(1:512)));
+title('FIR高通滤波器滤波前的频域波形');
+xlabel('频率');
+ylabel('幅值');
+
+subplot(4,1,4);
+F2=plot(f,abs(F0(1:512)));
+title('FIR高通滤波器滤波后的频域波形');
+xlabel('频率');
+ylabel('幅值');
+
