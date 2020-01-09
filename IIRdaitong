@@ -1,0 +1,59 @@
+%IIR带通滤波器的设计及滤波
+x=audioread('E:\matlab\12.wav');
+
+Fp1=1200;
+Fp2=3000;
+Fs1=1000;
+Fs2=3200;
+fs=22050;
+Ts=1/fs;
+W1=2*Fp1*pi/fs;	%单位转换
+W2=2*Fs1*pi/fs;
+W3=2*Fp2*pi/fs;
+W4=2*Fs2*pi/fs;
+Wp=[W1,W3];	%滤波器边界频率
+Ws=[W2,W4];
+Ap=1;
+As=30;
+Wp1=2/Ts*tan(Wp/2); %预畸变校正计算相应模拟带通的技术指标
+Ws1=2/Ts*tan(Ws/2);
+[N,Wn]=cheb2ord(Wp1,Ws1,Ap,As,'s');  %选择滤波器的最小阶数
+[Z,P,K]=cheb2ap(N,As);	%创建切比雪夫模拟滤波器
+[Bap,Aap]=zp2tf(Z,P,K);
+[b,a]=lp2bp(Bap,Aap,2100*2*pi,1800*2*pi);
+[bz,az]=bilinear(b,a,fs);  %用双线性变换法实现模拟滤波器到数字滤波器的转换
+[H,W]=freqz(bz,az);   %绘制频率响应曲线
+figure(7)
+plot(W*fs/(2*pi),abs(H))
+grid
+title('IIR带通滤波器')
+xlabel('频率');
+ylabel('频率响应幅度')
+
+figure(2)
+subplot(4,1,1)
+f1=filter(bz,az,x);	%对原始信号进行滤波
+plot(x)   %画出滤波前的时域图
+title('IIR带通滤波器滤波前的时域波形');
+ 
+subplot(4,1,2)
+plot(f1);  %画出滤波后的时域图
+title('IIR带通滤波器滤波后的时域波形');
+ 
+sound(f1,44100); %播放滤波后的信号
+ 
+F0=fft(f1,1024);	%对滤波后信号进行FFT变换
+f=fs*(0:511)/1024;
+y2=fft(x,1024);	%对原始信号进行FFT变换
+ 
+subplot(4,1,3);
+plot(f,abs(y2(1:512)));  %画出滤波前的频谱图
+title('IIR带通滤波器滤波前的频域波形')
+xlabel('频率');
+ylabel('幅值');
+ 
+subplot(4,1,4)
+plot(f,abs(F0(1:512))); %画出滤波后的频谱图
+title('IIR带通滤波器滤波后的频域波形')
+xlabel('频率');
+ylabel('幅值');
