@@ -1,0 +1,53 @@
+%IIR高通滤波器设计及滤波
+x=audioread('E:\matlab\12.wav'); %打开语音信号
+Fp=5000;
+Fs=4800;
+fs=22050;
+Ts=1/fs;
+Wp=2*pi*Fp/fs;
+Ws=2* pi*Fs/fs;
+Ap=1; 
+As=35;
+Wp1=2/Ts*tan(Wp/2);  %预畸变校正计算相应模拟高通的技术指标
+Ws1=2/Ts*tan(Ws/2);
+[N,Wn]=cheb2ord(Wp1,Ws1,Ap,As,'s'); %选择滤波器的最小阶数
+[Z,P,K]=cheb2ap(N,As);  %创建切比雪夫模拟滤波器
+[Bap,Aap]=zp2tf(Z,P,K);
+[b,a]=lp2hp(Bap,Aap,Wn);
+[bz,az ]=bilinear(b,a,fs);  %用双线性变换法实现模拟滤波器到数字滤波器的转换
+[H,W]=freqz(bz,az);  %绘制频率响应曲线
+figure(1)
+plot(W*fs/(2*pi),abs(H))
+grid
+title('IIR高通滤波器');
+xlabel('频率');
+ylabel('频率响应幅度');
+
+
+
+figure(2)
+subplot(4,1,1)
+plot(x)  %画出滤波前的时域图
+title('IIR高通滤波器滤波前的时域波形');
+
+f1=filter(bz,az,x); %对原始信号进行高通滤波
+subplot(4,1,2)
+plot(f1);  %画出滤波后的时域图
+title('IIR高通滤波器滤波后的时域波形');
+
+sound(f1,44100);  %播放滤波后的信号
+F0=fft(f1,1024);
+f=fs*(0:511)/1024;
+
+y2=fft(x,1024); 
+subplot(4,1,3)
+plot(f,abs(y2(1:512)));  %画出滤波前的频谱图
+title('IIR高通滤波器滤波前的频域波形')
+xlabel('频率');
+ylabel('幅值');
+
+subplot(4,1,4);
+plot(f,abs(F0(1:512)));  %画出滤波后的频谱图
+title('IIR高通滤波器滤波后的频域波形')
+xlabel('频率');
+ylabel('幅值');
