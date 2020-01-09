@@ -1,0 +1,20 @@
+[x,fs]=audioread('E:\matlab\12.wav');   %读取语音信号
+sound(x,fs);
+figure(1);
+plot(x);   %原始语音信号
+title('原始语音信号');
+
+%FS=length(x);
+Y=fft(x,1024);      %对采样信号做FFT变换
+f=fs*(0:1024/2-1)/1024;
+figure(2);
+subplot(2,1,1);plot(x);
+title('采样语音信号时域波形');
+xlabel('时间轴');
+ylabel('幅度');
+
+subplot(2,1,2);plot(f,abs(Y(1:1024/2)));
+%axis([0 4500 0 500]);
+title('采样语音信号频谱图');
+xlabel('频率');
+ylabel('频率幅度');
